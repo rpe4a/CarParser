@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 
 namespace Parser.Models
@@ -11,7 +12,7 @@ namespace Parser.Models
 
         [JsonProperty("dt")] public DateTime DateOfAdded { get; set; }
 
-        [JsonProperty("source")] public string Website { get; set; }
+        public string Source { get; set; }
 
         public Company Company { get; set; }
 
@@ -51,11 +52,9 @@ namespace Parser.Models
 
         public string Drive { get; set; }
 
-        [JsonProperty("run")]
-        public string Run { get; set; }
+        [JsonProperty("run")] public string Run { get; set; }
 
-        [JsonProperty("run_ed")]
-        public string Run_ed { get; set; }
+        [JsonProperty("run_ed")] public string Run_ed { get; set; }
 
         public string Modification { get; set; }
 
@@ -69,7 +68,7 @@ namespace Parser.Models
 
         [JsonProperty("e_mail")] public string Email { get; set; }
 
-        public IEnumerable<string> Photos => Photo?.Split(new[] {','});
+        public IEnumerable<string> Photos => Photo?.Split(',');
 
         public string Wheel { get; set; }
 
@@ -85,16 +84,49 @@ namespace Parser.Models
 
         public string Protected { get; set; }
 
-        public Status CarStatus() => PtsOwner <= 2 &&
-                                DifferencePrice < 0 &&
-                                Company == Company.FL &&
-                                PhoneFind <= 1 &&
-                                Price >= 200000 && Price <= 400000
-                                ? Status.Good : Status.Bad;
-
-        public override string ToString()
+        public Status CarStatus()
         {
-            return $"{nameof(Id)}: {Id}, {nameof(DateOfAdded)}: {DateOfAdded}, {nameof(Region)}: {Region}, {nameof(Url)}: {Url}, {nameof(Model)}: {Model}, {nameof(Marka)}: {Marka}, {nameof(Color)}: {Color}, {nameof(Body)}: {Body}, {nameof(Transmission)}: {Transmission}, {nameof(EngineType)}: {EngineType}, {nameof(EngineVolume)}: {EngineVolume}, {nameof(Condition)}: {Condition}, {nameof(Drive)}: {Drive}, {nameof(Mileage)}: {Mileage}, {nameof(Run)}: {Run}, {nameof(Run_ed)}: {Run_ed}, {nameof(Year)}: {Year}, {nameof(Modification)}: {Modification}, {nameof(Phone)}: {Phone}, {nameof(ViewedCount)}: {ViewedCount}, {nameof(PtsOwner)}: {PtsOwner}, {nameof(FIOOwner)}: {FIOOwner}, {nameof(Info)}: {Info}, {nameof(Address)}: {Address}, {nameof(VIN)}: {VIN}, {nameof(Email)}: {Email}, {nameof(Company)}: {Company}, {nameof(Photos)}: {Photos}, {nameof(Wheel)}: {Wheel}, {nameof(Photo)}: {Photo}, {nameof(Complect)}: {Complect}, {nameof(Price)}: {Price}, {nameof(PhoneFind)}: {PhoneFind}, {nameof(AveragePrice)}: {AveragePrice}, {nameof(DifferencePrice)}: {DifferencePrice}, {nameof(Website)}: {Website}, {nameof(Fast)}: {Fast}, {nameof(Protected)}: {Protected}";
+            return PtsOwner <= 2 &&
+                   DifferencePrice < 0 &&
+                   Company == Company.FL &&
+                   PhoneFind <= 1 &&
+                   Price >= 200000 && Price <= 400000
+                ? Status.Good
+                : Status.Bad;
+        }
+
+        public string Website()
+        {
+            var site = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(Source))
+                return site;
+
+            var mileage = Regex.Match(Mileage ?? "", @"\d+").Value;
+
+            switch (Source)
+            {
+                case "autoru":
+                {
+                    site =
+                        $"https://auto.ru/perm/cars/all/?year_from={Year}&year_to={Year}&price_from={Price}&price_to={Price}&km_age_from={mileage}&km_age_to={mileage}&sort=cr_date-desc";
+
+                    break;
+                }
+                case "avitoru":
+                {
+                    site = $"https://www.avito.ru/perm/avtomobili?pmax={Price}&pmin={Price}&radius=200&s=104&s_trg=3";
+                    break;
+                }
+                case "amru":
+                {
+                    site =
+                        $"https://am.ru/perm/search/?kladdr[0]=2442&kladdr[1]=52&price[min]={Price}&price[max]={Price}&mileage[min]={mileage}&mileage[max]={mileage}&years[min]={Year}&years[max]={Year}";
+                    break;
+                }
+            }
+
+            return site;
         }
     }
 

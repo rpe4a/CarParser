@@ -9,7 +9,7 @@ namespace Parser.Models
         public static string MailTitle(this Car car)
         {
             return
-                $"Объявление на сайте {car.Website} от {car.DateOfAdded}, Автомобиль: {car.Marka} {car.Model} {car.Year}г. {car.Mileage} {car.Price} руб.";
+                $"Объявление на сайте {car.Source} от {car.DateOfAdded}, Автомобиль: {car.Marka} {car.Model} {car.Year}г. {car.Mileage} {car.Price} руб.";
         }
 
         public static string MainBody(this Car car)
@@ -23,11 +23,13 @@ namespace Parser.Models
                 nameof(car.Year),
                 nameof(car.PtsOwner),
                 nameof(car.Price),
-                nameof(car.Website),
+                nameof(car.Source),
                 nameof(car.PhoneFind),
             };
 
             sb.AppendLine("<div style='text-align:left;'>");
+
+            sb.AppendLine($"<p> Website: {car.Website()}</p>");
 
             foreach (var prop in typeof(Car).GetProperties())
                 if (mainProps.Contains(prop.Name))
