@@ -1,7 +1,0 @@
-﻿{
-  "MailTo": "tat.ponosova94@yandex.ru",
-  "MailFrom": "zapman2la@gmail.com",
-  "MailFromPass": "Q2667760QweR",
-  "CarSavePath": "Cars/",
-  "GmailPort": "587" /*587, 25, 465*/
-}
